@@ -28,4 +28,6 @@ install(FILES plasma-applet-eyesaver.desktop
 
 install(FILES images/occhio2.svg
         DESTINATION ${DATA_INSTALL_DIR}/desktoptheme/default/widgets/)
+
+install(FILES plasma_eyesaver.notifyrc DESTINATION ${DATA_INSTALL_DIR}/plasma_eyesaver)
 	

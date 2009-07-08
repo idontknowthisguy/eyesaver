@@ -1,0 +1,14 @@
+[Global]
+Name=Eyesaver
+Name[x-test]=xxPastebinxx
+IconName=edit-paste
+Comment=Pastebin Widget
+Version=0.1
+
+[Event/durationreached]
+Name=Duration for paused reached
+Comment=The pastebin URL has been copied to the clipboard
+Comment[x-test]=xxThe pastebin URL has been copied to the clipboardxx
+Sound=KDE-Sys-Log-In-Short.ogg
+Action=Popup|Sound
+Persistant=true

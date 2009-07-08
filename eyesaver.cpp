@@ -26,6 +26,7 @@
 #include <KStandardDirs>
 #include <KWindowSystem>
 #include <NETRootInfo>
+#include <KNotification>
 
 Plasmaeyesaver::Plasmaeyesaver(QObject *parent, const QVariantList &args)
     : Plasma::Applet(parent, args),
@@ -164,28 +165,21 @@ void Plasmaeyesaver::aggiorna()
   if (!in_pausa){
     secondo += 4;
     if (secondo>=quandopausa)
-    {
-      if(musichetta) {
-	 Phonon::MediaObject *music = Phonon::createPlayer(Phonon::NotificationCategory, 
-							   Phonon::MediaSource( KStandardDirs::locate( "sound", "KDE-Sys-Log-In-Short.ogg" ) ));
-	 music->play();
-      }
-      QMessageBox *message;
-      message = new QMessageBox(QMessageBox::Warning,"Eyesaver","It's time to take a break,\npress Ok when you're ready");
-      QPushButton *bottone_rifiuta;
-      QPushButton *bottone_spegni;
-      QPushButton *bottone_ok;
-      bottone_ok = message->addButton("Ok",QMessageBox::AcceptRole);
-      bottone_rifiuta = message->addButton("Skip this pause",QMessageBox::RejectRole);
-      bottone_spegni = message->addButton("Turn eyesaver off",QMessageBox::RejectRole);
+    {      
       
-      connect(bottone_spegni, SIGNAL( clicked() ),SLOT( disattiva() ));
-      connect(bottone_rifiuta, SIGNAL( clicked() ), SLOT(rifiuta_pausa()) );
-      connect(message, SIGNAL( rejected()), SLOT( rifiuta_pausa()) );
-      connect(bottone_ok, SIGNAL(clicked()), SLOT(inizia_pausa()));
-      message->open();//(this, SLOT(inizia_pausa()) );
-      //I try to put "message" on top of other windows:
-      KWindowSystem::setState(message->winId(), NET::KeepAbove | NET::Sticky);
+      // Using Knotify
+      kDebug() << "Trying to knotify...";
+      KNotification *notify = new KNotification("durationreached");
+      notify->setComponentData(KComponentData("plasma_eyesaver"));
+      notify->setText(i18nc("Notification when the eyesaver applet has reached the set duration", "It's time to take a break.\nPress Ok when you're ready."));
+      QStringList actionlist;
+      actionlist << i18n("Okay") << i18n("Skip this pause") << i18n("Turn eyesaver off");
+      notify->setActions(actionlist);
+      connect(notify, SIGNAL(action1Activated()), this, SLOT(inizia_pausa()));
+      connect(notify, SIGNAL(action2Activated()), this, SLOT(rifiuta_pausa()));
+      connect(notify, SIGNAL(action3Activated()), this, SLOT(disattiva()));
+      notify->sendEvent();
+      kDebug() << "Knotified.";
       
     }
     else m_timer->start( 4000 );
